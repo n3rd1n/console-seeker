@@ -37,5 +37,12 @@
 	},
 	"homepage": "https://github.com/n3rd1n/log-seeker#readme",
 	"author": "n3rd1n",
-	"license": "MIT"
+	"license": "MIT",
+	"dependencies": {
+		"commander": "^14.0.1"
+	},
+	"devDependencies": {
+		"@types/node": "^24.7.0",
+		"typescript": "^5.9.3"
+	}
 }
