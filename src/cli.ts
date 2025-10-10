@@ -1,5 +1,7 @@
+#!/usr/bin/env node
+
 import { Command } from 'commander'
-import * as Main from './models/Main'
+import { Main } from './index'
 
 const program = new Command()
 
