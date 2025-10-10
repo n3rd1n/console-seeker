@@ -1,19 +1,25 @@
-node_modules/**/*
-.expo/*
-.idea/**/*
-npm-debug.*
-build
 *.jks
-*.p8
-*.p12
 *.key
+*.log
 *.mobileprovision
 *.orig.*
+*.p12
+*.p8
 *.swp
-web-build/
-tags
-cypress/videos/
-
-# macOS
 .DS_Store
+.env
+.env.development.local
+.env.local
+.env.production.local
+.env.test.local
+.idea/**/*
+build
+dist/
+node_modules/
+npm-debug.*
+npm-debug.log*
+tags
+web-build/
+yarn-debug.log*
+yarn-error.log*
 
