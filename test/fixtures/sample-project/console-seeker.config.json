@@ -1,0 +1,6 @@
+{
+	"scanFolder": "src",
+	"ignorePaths": ["node_modules", "dist"],
+	"extensions": [".js", ".ts"],
+	"methods": ["log"]
+}
