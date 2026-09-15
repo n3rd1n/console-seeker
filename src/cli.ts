@@ -1,14 +1,9 @@
 #!/usr/bin/env node
 
-import { Command } from 'commander'
-import { Main } from './index'
+import { runCli } from './run-cli'
 
-const program = new Command()
-
-program.name('console-seeker').description(
-	'Find unused console-Statements in JavaScript/TypeScript projects'
-)
-
-program.command('scan').description('Scan Folder').action(Main.scan)
-
-Main.scan()
+runCli().catch((error: unknown) => {
+	const message = error instanceof Error ? error.message : String(error)
+	console.error(message)
+	process.exitCode = 1
+})

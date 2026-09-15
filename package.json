@@ -1,11 +1,12 @@
 {
 	"name": "console-seeker",
-	"version": "1.0.0",
-	"description": "A tool to find log statements (like console.log) in JavaScript/TypeScript projects",
+	"version": "1.1.0",
+	"description": "Find console statements in JavaScript/TypeScript projects",
 	"main": "dist/index.js",
 	"types": "./dist/index.d.ts",
 	"files": [
 		"dist/**/*",
+		"LICENSE",
 		"README.md"
 	],
 	"bin": {
@@ -14,19 +15,23 @@
 	"scripts": {
 		"build": "tsc",
 		"dev": "tsc --watch",
-		"start": "node dist/index.js",
-		"prepublishOnly": "npm run build"
+		"start": "node dist/cli.js",
+		"test": "vitest run",
+		"test:watch": "vitest",
+		"format": "prettier --write .",
+		"format:check": "prettier --check .",
+		"prepublishOnly": "npm test && npm run build"
 	},
 	"keywords": [
-		"unused-console-log-statements",
-		"console-log",
+		"console.log",
 		"console",
 		"log",
 		"dead-code",
 		"cleanup",
 		"javascript",
 		"typescript",
-		"analysis"
+		"analysis",
+		"ci"
 	],
 	"repository": {
 		"type": "git",
@@ -38,11 +43,23 @@
 	"homepage": "https://github.com/n3rd1n/log-seeker#readme",
 	"author": "n3rd1n",
 	"license": "MIT",
+	"engines": {
+		"node": ">=20"
+	},
+	"exports": {
+		".": {
+			"types": "./dist/index.d.ts",
+			"require": "./dist/index.js",
+			"default": "./dist/index.js"
+		}
+	},
 	"dependencies": {
 		"commander": "^14.0.1"
 	},
 	"devDependencies": {
 		"@types/node": "^24.7.0",
-		"typescript": "^5.9.3"
+		"prettier": "^3.6.2",
+		"typescript": "^5.9.3",
+		"vitest": "^3.2.4"
 	}
 }
