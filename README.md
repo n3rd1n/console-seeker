@@ -1,78 +1,120 @@
 # Console Seeker
 
-A powerful command-line tool to find and analyze `console.log` statements in JavaScript/TypeScript projects. Perfect for code cleanup and identifying unused logging statements before production deployment.
+A command-line tool to find `console` statements in JavaScript and TypeScript projects. Use it for cleanup work or as a CI check that fails when leftover debug logs are present.
 
 ## Features
 
-- 🔍 **Smart Detection**: Finds all `console.log` statements in your project
-- 📊 **Detailed Analysis**: Shows file paths and line numbers for each console statement
-- 🎨 **Colorized Output**: Easy-to-read terminal output with color coding
-- ⚙️ **Configurable**: Customize scan folders, ignore paths, and file extensions
-- 🚀 **Fast**: Uses efficient grep-based scanning for quick results
-- 📦 **CLI Tool**: Install globally and use from anywhere
+- Finds real `console.*` calls, including line numbers
+- Skips comments, string literals, ignored folders, and unmatched file types
+- Honors `eslint-disable` / `console-seeker-ignore` suppressions
+- Colorized terminal output or JSON
+- Configurable scan folder, ignore paths, extensions, and console methods
+- Exit code `1` when matches are found, so CI jobs can fail the build
 
 ## Installation
 
-### Global Installation (Recommended)
+### Global
+
 ```bash
 npm install -g console-seeker
 ```
 
-### Local Installation
+### Local
+
 ```bash
 npm install --save-dev console-seeker
 ```
 
 ## Usage
 
-### Basic Usage
-Scan the current directory for console.log statements:
+Scan with the config file (defaults to the `src` folder):
+
 ```bash
 console-seeker
 ```
 
-### Scan Specific Directory
+Scan a specific directory or file:
+
 ```bash
 console-seeker scan /path/to/your/project
+console-seeker scan src/app.ts
 ```
 
-### Programmatic Usage
+`scan` is the default command, so this is equivalent:
+
+```bash
+console-seeker /path/to/your/project
+```
+
+Write a default config file:
+
+```bash
+console-seeker init
+```
+
+Machine-readable output:
+
+```bash
+console-seeker --json
+```
+
+Report matches without failing the process:
+
+```bash
+console-seeker --exit-zero
+```
+
+### Programmatic usage
+
 ```javascript
-import { Main } from 'console-seeker';
+const { scan } = require('console-seeker')
 
-// Scan current directory
-await Main.scan();
+async function main() {
+	const result = await scan()
+	if (result.count > 0) {
+		console.error(result)
+		process.exitCode = 1
+	}
+}
+
+main()
 ```
+
+`scan()` returns data and does not exit the process. Pass `{ path, cwd, config, configPath }` to control the run.
 
 ## Configuration
 
-Create a `console-seeker.config.json` file in your project root to customize the scanning behavior:
+Create a `console-seeker.config.json` file in your project root:
 
 ```json
 {
-  "scanFolder": "src",
-  "ignorePaths": ["node_modules", "dist", "build", ".git", "coverage"],
-  "extensions": [".js", ".ts", ".jsx", ".tsx", ".vue"]
+	"scanFolder": "src",
+	"ignorePaths": ["node_modules", "dist", "build", ".git", "coverage"],
+	"extensions": [".js", ".ts", ".jsx", ".tsx", ".mjs", ".cjs", ".mts", ".cts"],
+	"methods": ["log"]
 }
 ```
 
-### Configuration Options
+A CLI path argument overrides `scanFolder`. Use `--config <path>` to load a different file.
 
-| Option | Type | Default | Description |
-|--------|------|---------|-------------|
-| `scanFolder` | string | `"src"` | Directory to scan for console statements |
-| `ignorePaths` | string[] | `["node_modules", "dist", "build", ".git"]` | Paths to ignore during scanning |
-| `extensions` | string[] | `[".js", ".ts", ".jsx", ".tsx"]` | File extensions to include in scanning |
+### Configuration options
+
+| Option        | Type     | Default                                                          | Description                                                         |
+| ------------- | -------- | ---------------------------------------------------------------- | ------------------------------------------------------------------- |
+| `scanFolder`  | string   | `"src"`                                                          | Directory to scan when no CLI path is given                         |
+| `ignorePaths` | string[] | `["node_modules", "dist", "build", ".git", "coverage"]`          | Folder names or relative paths to skip                              |
+| `extensions`  | string[] | `[".js", ".ts", ".jsx", ".tsx", ".mjs", ".cjs", ".mts", ".cts"]` | File extensions to include                                          |
+| `methods`     | string[] | `["log"]`                                                        | `console` methods to report (`debug`, `info`, `warn`, `error`, ...) |
 
 ## Output
 
-The tool provides colorized output showing:
-- **Red**: Number of console.log statements found (errors)
-- **Green**: Zero console statements found (clean code)
-- **Blue**: File paths containing console statements
-- **White**: Line numbers where console statements are located
+Colorized human output:
 
-Example output:
+- **Red**: one or more matches
+- **Green**: no matches
+- **Blue**: file path
+- Line number plus the source line for each match
+
 ```
 3 ERROR(S):
 src/components/Button.tsx
@@ -82,50 +124,50 @@ src/utils/helpers.js
    8: console.log('Helper function called')
 ```
 
-## Exit Codes
+JSON output is a `ScanResult` object: `{ count, files: [{ path, count, matches }] }`.
 
-- `0`: No console.log statements found (success)
-- `1`: Console.log statements found (error)
+## Suppressing matches
 
-This makes it perfect for CI/CD pipelines where you want to fail builds that contain console statements.
+These are skipped:
 
-## Use Cases
+- Line comments and block comments
+- String and template literals (calls inside `${...}` still count)
+- `// eslint-disable-next-line no-console`
+- `// eslint-disable-line no-console`
+- `/* eslint-disable no-console */`
+- `// console-seeker-ignore` on the line above a call
 
-- **Pre-deployment cleanup**: Remove console statements before production
-- **Code quality**: Maintain clean, production-ready code
-- **CI/CD integration**: Fail builds that contain debugging statements
-- **Code review**: Quickly identify files with console statements
-- **Team standards**: Enforce no-console policies across projects
+## Exit codes
+
+- `0`: no matches, or `--exit-zero` was passed
+- `1`: matches found, or the scan failed (missing folder, invalid config)
 
 ## Integration
 
-### Git Hooks
-Add to your pre-commit hook to prevent console statements from being committed:
+### Git hook
+
 ```bash
 #!/bin/sh
-console-seeker
+npx console-seeker
 ```
 
-### Package.json Scripts
+### package.json
+
 ```json
 {
-  "scripts": {
-    "check-console": "console-seeker",
-    "prebuild": "console-seeker"
-  }
+	"scripts": {
+		"check-console": "console-seeker",
+		"prebuild": "console-seeker"
+	}
 }
 ```
 
-### CI/CD Pipeline
+### GitHub Actions
+
 ```yaml
-# GitHub Actions example
 - name: Check for console statements
   run: npx console-seeker
 ```
-
-## Contributing
-
-Contributions are welcome! Please feel free to submit a Pull Request.
 
 ## License
 
