@@ -175,5 +175,5 @@ MIT © [n3rd1n](https://github.com/n3rd1n)
 
 ## Repository
 
-- **GitHub**: [https://github.com/n3rd1n/log-seeker](https://github.com/n3rd1n/log-seeker)
-- **Issues**: [https://github.com/n3rd1n/log-seeker/issues](https://github.com/n3rd1n/log-seeker/issues)
+- **GitHub**: [https://github.com/n3rd1n/console-seeker](https://github.com/n3rd1n/console-seeker)
+- **Issues**: [https://github.com/n3rd1n/console-seeker/issues](https://github.com/n3rd1n/console-seeker/issues)
